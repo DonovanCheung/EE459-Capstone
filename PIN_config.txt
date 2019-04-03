@@ -1,0 +1,45 @@
+	uController PIN				|			CONNECTION
+----------------------------------------------------
+				PB0							|		RS (LCD)
+				PB1							|		R/W (LCD)
+				PB2							|		E	(LCD)
+				PB3							|		Flash pin
+				PB4							|		Flash pin 
+				PB5							|		Flash pin 
+				PB6							|   oscillator (pin3)
+				PB7							|		
+				PC0							|		resistor - LED (red)
+				PC1							|
+				PC2							|
+				PC3							|
+				PC4							|
+				PC5							|
+				PC6							|		Flash pin
+				PD0 (RXD)				|   MAX232 (pin12)
+				PD1	(TXD)				|    
+				PD2							|   
+				PD3							|		
+				PD4							|		DB4 (LCD)
+				PD5							|		DB5 (LCD)
+				PD6							|		DB6 (LCD)
+				PD7							|		DB7 (LCD)
+				
+				
+				MAX232          |				Connection
+	----------------------------------------------------
+					pin 1  				|  		Capacitor
+					pin 2					|			Capacitor
+					pin 3					|			Capacitor
+					pin 4					|			Capacitor
+					pin 5					|			Capacitor
+					pin 6					|			Capacitor
+					pin 7					|		
+					pin 8					|
+					pin 9					|			
+					pin 10				|			
+					pin 11				|			GPS TX
+					pin 12				|			uController PD0
+					pin 13				|			D9 pin 2
+					pin 14				|			D9 pin 3
+					pin 15				|			GND
+					pin 16				|			PWR
