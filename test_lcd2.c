@@ -73,8 +73,10 @@ void lcd_stringout_P(char *);
 
 int main(void) {
 
-    lcd_init();                 // Initialize the LCD display
+    //lcd_init();                 // Initialize the LCD display
 
+	initialize();
+	
     lcd_moveto(1, 1);
     //lcd_stringout("p");
 	
@@ -125,19 +127,25 @@ void initialize(void)
 	//Function Set(2)
 	PORTD &= ~(1<<PD4);
 	
-	PORTD |= (1<<PD6);			//F
+	PORTD |= (1<<PD6);			//PD6 = F : Display font type (F:5x11 dots/ 5x8 dots)
+								//PD7 = N : Number of display lines (N:2-line/1-line)
 	
 	_delay_us(40);				//"Wait for more than 39us"
 	
 	//Function Set(3)
 	PORTD &= ~(1<<PD6);			
-	PORTD|= (1<<PD6);			//F
+	PORTD|= (1<<PD6);			//PD6 = F : Display font type (F:5x11 dots/ 5x8 dots)
+								//PD7 = N : Number of display lines (N:2-line/1-line)
 	
 	_delay_us(38);				//"Wait for more than 37us"
 	
 	//Display On/Off Control
 	PORTD &= ~(LCD_Data_D);		//Clear PORTD	
-	PORTD |= (1<<PD7)|(1<<PD6);	//PD6 == D
+	PORTD |= (1<<PD7)|(1<<PD6);	//PD6 == D : Set Display
+								//PD5 == C : Cursor
+								//PD4 == B : on/off control bit
+	
+	
 	
 	_delay_us(38);				//"Wait more than 37us
 	
@@ -149,7 +157,8 @@ void initialize(void)
 	
 	//Entry Mode Set
 	PORTD &= ~(LCD_Data_D);		//Clear PORTD
-	PORTD |= (1<<PD6); //  |(1<<PD5)|(1<<PD4);		//PD5 == I/D		// PD4 == SH
+	PORTD |= (1<<PD6)|(1<<PD5); //PD5 = I/D : Assign cursor moving direction
+								//PD4 = SH : Shift of entire display
 	
 	
 }
