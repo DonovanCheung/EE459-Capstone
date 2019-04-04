@@ -41,7 +41,8 @@
   If LCD data bits 4-7 are connected to PORTD, bits 2-3 and PORTB bits 0-1,
   don't define NIBBLE_HIGH.
 */
-#define NIBBLE_HIGH                 // Use bits 4-7 for talking to LCD
+#define NIBBLE_HIGH       //	(1 << PD4)|(1<<PD5)|(1<<PD6)|(1<<PD7)  
+       // Use bits 4-7 for talking to LCD
 
 void lcd_init(void);
 void lcd_moveto(unsigned char, unsigned char);
@@ -65,20 +66,25 @@ void lcd_stringout_P(char *);
 #define LCD_Bits        (LCD_RS|LCD_RW|LCD_E)
 
 
-#define LCD_Data_D     (1 << PD4) | (1 << PD5) | (1 << PD6) | (1 << PD7)     // Bits in Port D for LCD data
-#define LCD_Status     0x80     // Bit in Port D for LCD busy status
+#define LCD_Data_D     (1 << PD4) | (1 << PD5) | (1 << PD6) | (1 << PD7)   
+  // Bits in Port D for LCD data
+#define LCD_Status     (1<< PD7)    // Bit in Port D for LCD busy status
 
 
 int main(void) {
 
     lcd_init();                 // Initialize the LCD display
 
-    lcd_moveto(0, 0);
-    lcd_stringout("p");
+    lcd_moveto(1, 1);
+    //lcd_stringout("p");
 	
 
     while (1) {                 // Loop forever
-		
+		_delay_ms(50);
+		lcd_stringout("L");
+		_delay_ms(50);
+		lcd_stringout("Hello");
+		_delay_ms(50);
     }
 
     return 0;   /* never reached */
@@ -99,6 +105,56 @@ void lcd_stringout_P(char *s)
     }
 }
 
+/* Initializing of LCM
+   pg 18 of data sheet.
+*/
+void initialize(void)
+{
+	DDRD |= LCD_Data_D;         // Set PORTD bits 4-7 for output
+    DDRB |= LCD_Bits;           // Set PORTB bits 0, 1 and 2 for output
+
+	_delay_ms(45);				//"Wait for more than 40ms after Vdd rises to 4.5V
+	
+	//Function Set(1)
+	PORTB &= ~LCD_Bits;					
+	PORTD &= ~( (1<<PD7) | (1<<PD6) );
+	PORTD |= (1<<PD5)|(1<<PD4);
+	
+	_delay_us(40);				//"Wait for more than 39us"
+	
+	//Function Set(2)
+	PORTD &= ~(1<<PD4);
+	
+	PORTD |= (1<<PD6);			//F
+	
+	_delay_us(40);				//"Wait for more than 39us"
+	
+	//Function Set(3)
+	PORTD &= ~(1<<PD6);			
+	PORTD|= (1<<PD6);			//F
+	
+	_delay_us(38);				//"Wait for more than 37us"
+	
+	//Display On/Off Control
+	PORTD &= ~(LCD_Data_D);		//Clear PORTD	
+	PORTD |= (1<<PD7)|(1<<PD6);	//PD6 == D
+	
+	_delay_us(38);				//"Wait more than 37us
+	
+	//Display Clear
+	PORTD &= ~(LCD_Data_D);		//Clear PORTD
+	PORTD |= (1<<PD4);
+	
+	_delay_ms(2);				//"Wait more than 1.53ms"
+	
+	//Entry Mode Set
+	PORTD &= ~(LCD_Data_D);		//Clear PORTD
+	PORTD |= (1<<PD6); //  |(1<<PD5)|(1<<PD4);		//PD5 == I/D		// PD4 == SH
+	
+	
+}
+
+
 /*
   lcd_init - Do various things to force a initialization of the LCD
   display by instructions, and then set up the display parameters and
@@ -113,13 +169,13 @@ void lcd_init(void)
 
     _delay_ms(15);              // Delay at least 15ms
 
-    lcd_writenibble(0x30);      // Send 00110000, set for 8-bit interface
+  //  lcd_writenibble(0x30);      // Send 00110000, set for 8-bit interface
     _delay_ms(5);               // Delay at least 4msec
 
-    lcd_writenibble(0x30);      // Send 00110000, set for 8-bit interface
+  //  lcd_writenibble(0x30);      // Send 00110000, set for 8-bit interface
     _delay_us(120);             // Delay at least 100usec
 
-    lcd_writenibble(0x30);      // Send 00110000, set for 8-bit interface
+  //  lcd_writenibble(0x30);      // Send 00110000, set for 8-bit interface
     _delay_ms(2);
     
     lcd_writenibble(0x20);      // Send 00100000, set for 4-bit interface
