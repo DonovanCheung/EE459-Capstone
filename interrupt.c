@@ -2,6 +2,8 @@
 #include <util/delay.h>
 #include <stdio.h>
 #include <avr/interrupt.h>
+
+#include "gps.h"
  
 #define FOSC 16000000           // Clock frequency
 #define BAUD 9600               // Baud rate used
@@ -24,7 +26,7 @@ int main(void){
 	flag = 0;
 	
 	int num=0;
-	GPS* gps;
+	struct GPS* gps;
 	
 	while(1){
 		
@@ -32,9 +34,9 @@ int main(void){
 		if(flag == 1){
 			num = parse(buf , gps);
 			if(num){
-				lcd_moveto(1,0);
-				lcd_stringout(buf); 		
-		
+				//lcd_moveto(1,0);
+				//lcd_stringout(buf); 		
+			_delay_ms(1);
 			}	
 			_delay_ms(250);
 			flag = 0;
@@ -43,7 +45,7 @@ int main(void){
 	}
 }
 
-ISR(USART_RXC_vect)
+ISR(USART_RX_vect)
     {
         char ch;
 
@@ -52,7 +54,7 @@ ISR(USART_RXC_vect)
 		buf[pos] = ch;				// Store in buffer
 		pos++;
 		if(pos ==74){
-			buf[74] = '\0';
+			buf[73] = '\0';
 			flag = 1;				// If message complete, set flag
 		}
     } 
