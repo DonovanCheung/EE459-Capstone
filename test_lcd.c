@@ -62,7 +62,7 @@ void lcd_stringout_P(char *);
 #define LCD_RS          (1 << PB0)
 #define LCD_RW          (1 << PB1)
 #define LCD_E           (1 << PB2)
-#define LCD_Bits        (LCD_RS|LCD_RW|LCD_E)
+#define LCD_Bits        (1 << PB0)|(1 << PB1)|(1 << PB2)
 
 
 #define LCD_Data_D     (1 << PD4) | (1 << PD5) | (1 << PD6) | (1 << PD7)     // Bits in Port D for LCD data
@@ -74,10 +74,11 @@ int main(void) {
     lcd_init();                 // Initialize the LCD display
 
     lcd_moveto(0, 0);
-    lcd_stringout("a");
+		//DDRD |= LCD_Data_D;
 
     while (1) {                 // Loop forever
-		
+			lcd_stringout("<");		
+			
     }
 
     return 0;   /* never reached */
@@ -108,7 +109,7 @@ void lcd_init(void)
     DDRD |= LCD_Data_D;         // Set PORTD bits 4-7 for output
     DDRB |= LCD_Bits;           // Set PORTB bits 0, 1 and 2 for output
 
-    PORTB &= ~LCD_RS;           // Clear RS for command write
+    PORTB &= ~(LCD_RS);           // Clear RS for command write
 
     _delay_ms(15);              // Delay at least 15ms
 
@@ -137,10 +138,10 @@ void lcd_moveto(unsigned char row, unsigned char col)
 {
     unsigned char pos = 0x80;
     if(row == 0){
-		position = 0xc0;
+		pos = 0xc0;
 	} 
-	position +=col;
-	writecommand(position);
+	pos +=col;
+	lcd_writecommand(pos);
 }
 
 /*
@@ -151,7 +152,7 @@ void lcd_stringout(char *str)
 {
     char ch;
     while ((ch = *str++) != '\0')
-	lcd_writedata(ch);
+			lcd_writedata(ch);
 }
 
 /*
@@ -159,7 +160,7 @@ void lcd_stringout(char *str)
 */
 void lcd_writecommand(unsigned char x)
 {
-    PORTB &= ~LCD_RS;       // Clear RS for command write
+    PORTB &= ~(LCD_RS);       // Clear RS for command write
     lcd_writebyte(x);
     lcd_wait();
 }
@@ -171,7 +172,7 @@ void lcd_writedata(unsigned char x)
 {
     PORTB |= LCD_RS;	// Set RS for data write
     lcd_writebyte(x);
-    //lcd_wait();
+    lcd_wait();
 }
 
 /*
@@ -191,12 +192,12 @@ void lcd_writebyte(unsigned char x)
 void lcd_writenibble(unsigned char x)
 {
 
-    PORTD &= ~LCD_Data_D;
-    PORTD |= (x & LCD_Data_D);  // Put high 4 bits of data in PORTD
+    PORTD &= ~(LCD_Data_D);
+    PORTD |= (x & (LCD_Data_D));  // Put high 4 bits of data in PORTD
     PORTB &= ~(LCD_RW|LCD_E);   // Set R/W=0, E=0
     PORTB |= LCD_E;             // Set E to 1
     PORTB |= LCD_E;             // Extend E pulse > 230ns
-    PORTB &= ~LCD_E;            // Set E to 0
+    PORTB &= ~(LCD_E);            // Set E to 0
 }
 
 /*
@@ -207,8 +208,8 @@ void lcd_wait()
 #ifdef USE_BUSY_FLAG
     unsigned char bf;
 
-    PORTD &= ~LCD_Data_D;       // Set for no pull ups
-    DDRD &= ~LCD_Data_D;        // Set for input
+    PORTD &= ~(LCD_Data_D);       // Set for no pull ups
+    DDRD &= ~(LCD_Data_D);        // Set for input
 
     PORTB &= ~(LCD_E|LCD_RS);   // Set E=0, R/W=1, RS=0
     PORTB |= LCD_RW;
@@ -217,9 +218,9 @@ void lcd_wait()
         PORTB |= LCD_E;         // Set E=1
         _delay_us(1);           // Wait for signal to appear
         bf = PIND & LCD_Status; // Read status register high bits
-        PORTB &= ~LCD_E;        // Set E=0
+        PORTB &= ~(LCD_E);        // Set E=0
 	PORTB |= LCD_E;         // Need to clock E a second time to fake
-	PORTB &= ~LCD_E;        //   getting the status register low bits
+	PORTB &= ~(LCD_E);        //   getting the status register low bits
     } while (bf != 0);          // If Busy (PORTD, bit 7 = 1), loop
 
     DDRD |= LCD_Data_D;         // Set PORTD bits for output
