@@ -1,4 +1,3 @@
-
 #ifndef GPS_H
 #define GPS_H
 
@@ -7,9 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-struct GPS 
-{
-  
+struct GPS{
   //int parse(char *nmea);
 
   uint8_t hour;                                     ///< GMT hours
@@ -31,9 +28,9 @@ struct GPS
 
   float latitudeDegrees;    ///< Latitude in decimal degrees
   float longitudeDegrees;   ///< Longitude in decimal degrees
-  
+
   float altitude;           ///< Altitude in meters above MSL
-   
+
   float HDOP;               ///< Horizontal Dilution of Precision - relative accuracy of horizontal position
   char lat;                 ///< N/S
   char lon;                 ///< E/W
