@@ -1,10 +1,10 @@
-#ifndef GPS_H
-#define GPS_H
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+
+#ifndef GPS_H
+#define GPS_H
 
 struct GPS{
   //int parse(char *nmea);

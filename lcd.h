@@ -30,8 +30,8 @@
 * 05/06/17 A. Weber    Change to use new LCD routines
 *************************************************************/
 
-//#include <avr/io.h>
-//#include <util/delay.h>
+#include <avr/io.h>
+#include <util/delay.h>
 #include <avr/pgmspace.h>
 
 #ifndef LCD_H

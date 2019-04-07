@@ -1,5 +1,5 @@
-/* --------------------------------------------------------------------------------- 
-//format of data  
+/* ---------------------------------------------------------------------------------
+//format of data
 // $GPGGA,064951.000,2307.1256,N,12016.4438,E,1,8,0.95,39.9,M,17.8,M,,*65
 // this function returns true if all data is found and false
 // otherwise (sets coordinates variables in struct)
@@ -7,16 +7,16 @@
 
 #include "gps.h"
 
-int parse(char* nmea, struct GPS* ptr) 
+int parse(char* nmea, struct GPS* ptr)
 {
 
   int32_t degree;
   long minutes;
   char degreebuff[10];
 
- /* look for the begining of data */ 
- if (strstr(nmea, "$GPGGA")) 
- {  
+ /* look for the begining of data */
+ if (strstr(nmea, "$GPGGA"))
+ {
     // found GGA
     char *p = nmea;
     // get time
@@ -28,7 +28,7 @@ int parse(char* nmea, struct GPS* ptr)
     ptr->seconds = (time % 100);
 
     ptr->milliseconds = fmod(timef, 1.0) * 1000;
-    
+
     /* parse out latitude */
     p = strchr(p, ',')+1;
     if (',' != *p)
@@ -105,6 +105,6 @@ int parse(char* nmea, struct GPS* ptr)
     return 1;
   }
 
-  return 2;
+  return 1;
 
 };

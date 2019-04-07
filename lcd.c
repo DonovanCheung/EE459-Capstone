@@ -144,3 +144,7 @@ void lcd_wait()
 	 _delay_ms(2);		// Delay for 2ms
 #endif
 }
+
+void lcd_clear(){
+		lcd_writecommand(1);
+}

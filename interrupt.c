@@ -15,57 +15,40 @@
 
 void serial_init();
 void init_timer(unsigned short);
+void reverse(char*, int);
+int intToStr(int, char[], int);
+void ftoa(float, char*, int);
 
 volatile char buf[20];	// Stores recieved char
 volatile int flag;	// Interrupt flag
 volatile int pos = 0;	// LCD position
-
-ISR(USART_RX_vect){
-	//lcd_stringout(" ");
-  char ch;
-  ch = UDR0;                  // Get the received charater
-
-	buf[pos] = ch;				// Store in buffer
-	pos++;
-	if(pos 
-	==19){
-		buf[19] = '\0';
-	//	lcd_stringout("IF");
-		flag = 1;				// If message complete, set flag
-	}
-}
 
 int main(void){
 
   lcd_init();                 // Initialize the LCD display
   lcd_moveto(0, 0);
   lcd_clear();
-  
-  //cli();
-
-  // DDRD &= ~(1 << PD0); // Clear Pin D0 (now an input)
-  // PORTD |= (1 << PD0); // Turn on internal pull-up for Pin D0
-  // PCICR |= (1 << PCIE2);
-  // PCMSK2 |= (1 << PCINT16);
 
   serial_init();
-  // init_timer(15625);
 
 
 	sei(); // Enable Global Interrupt Enable Flag
 	flag = 0;
 	int num=0;
-	struct GPS gps;
-	struct GPS* gps_ptr = &gps;
+	struct GPS* gps;
   char sflag[5];
 	char long_buf[10];
+  int n = 5;
+
   while(1){
-    //lcd_stringout(itoa(flag, sflag, 10));
-    if(flag == 1){
-			num = parse(buf , gps_ptr);
+    //lcd_stringout(itoa(flag, sflag, 10)); // prints flag value as a test
+    if(flag){
+			num = parse(buf , gps);
 			if(num){
-				lcd_moveto(0,0);
-				lcd_stringout(gcvt(gps_ptr->latitude,4,long_buf));
+        ftoa(gps->latitude, long_buf, n); // should convert long_buf into a string of gps->latitude (float), but is untested
+        lcd_stringout(long_buf); // should print the latitude, but only prints ".0000" so data isn't being parsed correctly?
+				//lcd_stringout(itoa(gps->lat, sflag, n)); // prints 0 if gps.c line 58 is gps->lat = any integer
+        //lcd_stringout(gps->lat); // prints junk if gps.c line 58 isn't gps->lat = any integer
 			}
 			_delay_ms(250);
 			flag = 0;
@@ -77,6 +60,18 @@ int main(void){
 }
 
 
+ISR(USART_RX_vect){
+  char ch;
+  ch = UDR0;                  // Get the received charater
+
+	buf[pos] = ch;				// Store in buffer
+	pos++;
+	if(pos==19){
+		buf[19] = '\0';
+		flag = 1;				// If message complete, set flag
+	}
+}
+
 
 void serial_init(){
 	// initialize USART (must call this before using it)
@@ -85,14 +80,59 @@ void serial_init(){
 	UCSR0B|=(1<<RXCIE0); //RX complete interrupt
 	UCSR0C|=(1<<UCSZ01)|(1<<UCSZ01); // no parity, 1 stop bit, 8-bit data
 }
-/*
-void init_timer(unsigned short m){
-  TCCR1B |= (1 << WGM12);
-  TIMSK1 |= (1 << OCIE1A);
-  OCR1A = m;
-  TCCR1B |= (1 << CS12);
-} */
-/*
-ISR(TIMER1_COMPA_vect){          // timer compare interrupt service routine
 
-} */
+void reverse(char *str, int len)
+{
+    int i=0, j=len-1, temp;
+    while (i<j)
+    {
+        temp = str[i];
+        str[i] = str[j];
+        str[j] = temp;
+        i++; j--;
+    }
+}
+int intToStr(int x, char str[], int d)
+{
+    int i = 0;
+    while (x)
+    {
+        str[i++] = (x%10) + '0';
+        x = x/10;
+    }
+
+    // If number of digits required is more, then
+    // add 0s at the beginning
+    while (i < d)
+        str[i++] = '0';
+
+    reverse(str, i);
+    str[i] = '\0';
+    return i;
+}
+
+
+void ftoa(float n, char *res, int afterpoint)
+{
+    // Extract integer part
+    int ipart = (int)n;
+
+    // Extract floating part
+    float fpart = n - (float)ipart;
+
+    // convert integer part to string
+    int i = intToStr(ipart, res, 0);
+
+    // check for display option after point
+    if (afterpoint != 0)
+    {
+        res[i] = '.';  // add dot
+
+        // Get the value of fraction part upto given no.
+        // of points after dot. The third parameter is needed
+        // to handle cases like 233.007
+        fpart = fpart * pow(10, afterpoint);
+
+        intToStr((int)fpart, res + i + 1, afterpoint);
+    }
+}
