@@ -1,4 +1,4 @@
- /*************************************************************
+/*************************************************************
 *       at328-5.c - Demonstrate interface to a parallel LCD display
 *
 *       This program will print a message on an LCD display
@@ -30,8 +30,8 @@
 * 05/06/17 A. Weber    Change to use new LCD routines
 *************************************************************/
 
-#include <avr/io.h>
-#include <util/delay.h>
+//#include <avr/io.h>
+//#include <util/delay.h>
 #include <avr/pgmspace.h>
 
 #ifndef LCD_H
@@ -56,6 +56,7 @@ void lcd_writebyte(unsigned char);
 void lcd_writenibble(unsigned char);
 void lcd_wait(void);
 void lcd_stringout_P(char *);
+void lcd_clear(void);
 
 /*
   Use the "PROGMEM" attribute to store the strings in the ROM

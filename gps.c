@@ -1,11 +1,8 @@
 /* --------------------------------------------------------------------------------- 
-
 //format of data  
 // $GPGGA,064951.000,2307.1256,N,12016.4438,E,1,8,0.95,39.9,M,17.8,M,,*65
-
 // this function returns true if all data is found and false
 // otherwise (sets coordinates variables in struct)
-
 -----------------------------------------------------------------------------------*/
 
 #include "gps.h"
@@ -108,6 +105,6 @@ int parse(char* nmea, struct GPS* ptr)
     return 1;
   }
 
-  return 0;
+  return 2;
 
 };
