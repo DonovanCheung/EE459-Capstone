@@ -9,7 +9,7 @@
 #error use --with-avrlibc to configure avr-gcc + AVR-Libc
 #endif
 */
-#define FOSC 16000000           // Clock frequency
+#define FOSC 7372800           // Clock frequency
 #define BAUD 9600               // Baud rate used
 #define MYUBRR FOSC/16/BAUD-1   // Value for UBRR0 register
 
@@ -23,37 +23,40 @@ volatile char buf[20];	// Stores recieved char
 volatile int flag;	// Interrupt flag
 volatile int pos = 0;	// LCD position
 
+char GGA_Buffer[150]; //stores gpgga string
+char GGA_CODE[5]; //stores string indicating whether GPGGA or some other code
+int IsItGGAString = 0; //verifies whether string is GPGGA
+int found_start = 0; //signal $ found
+volatile int end_string = 0; //signals end of string we're looking for
+
+volatile uint16_t GGA_Index, code_index;
+
+
+
 int main(void){
 
   lcd_init();                 // Initialize the LCD display
   lcd_moveto(0, 0);
   lcd_clear();
-
   serial_init();
+  memset(GGA_Buffer, 0, 150); //allocate memory for GGA buffer
+  memset(GGA_CODE, 0, 5); //allocate memory for GGA code buffer
 
+  DDRD |= (1 << PD2);
 
 	sei(); // Enable Global Interrupt Enable Flag
-	flag = 0;
-	int num=0;
+
 	struct GPS* gps;
-  char sflag[5];
-	char long_buf[10];
-  int n = 5;
+
 
   while(1){
-    //lcd_stringout(itoa(flag, sflag, 10)); // prints flag value as a test
-    if(flag){
-			num = parse(buf , gps);
-			if(num){
-        ftoa(gps->latitude, long_buf, n); // should convert long_buf into a string of gps->latitude (float), but is untested
-        lcd_stringout(long_buf); // should print the latitude, but only prints ".0000" so data isn't being parsed correctly?
-				//lcd_stringout(itoa(gps->lat, sflag, n)); // prints 0 if gps.c line 58 is gps->lat = any integer
-        //lcd_stringout(gps->lat); // prints junk if gps.c line 58 isn't gps->lat = any integer
-			}
-			_delay_ms(250);
-			flag = 0;
-			pos = 0;
-		}
+    //check to see if found entire string and print to lcd
+    if(end_string){
+      cli();
+      lcd_stringout(GGA_Buffer);
+      end_string = 0;
+      sei();
+    }
 	}
 
   return 0;
@@ -61,78 +64,39 @@ int main(void){
 
 
 ISR(USART_RX_vect){
-  char ch;
-  ch = UDR0;                  // Get the received charater
-
-	buf[pos] = ch;				// Store in buffer
-	pos++;
-	if(pos==19){
-		buf[19] = '\0';
-		flag = 1;				// If message complete, set flag
-	}
+  char received_char = UDR0;
+  if(received_char =='$'){  /* check for '$' */
+    if(IsItGGAString){ // if $ at end, means end of GPGGA string
+      end_string = 1;
+      IsItGGAString = 0;
+      GGA_Buffer[GGA_Index] = '\0';
+      code_index = 0;
+    }else{ //if first time $ found, check if GPGGA
+      found_start = 1;
+      GGA_Index = 0;
+      code_index = 0;
+      IsItGGAString = 0;  
+    }
+  }else if(IsItGGAString){ //if GPGGA, store in GGA buffer
+    GGA_Buffer[GGA_Index++] = received_char;
+  }else if(found_start && code_index == 5 ){ //if found start and found 5 code characters, check if GPGGA
+    //if GPGGA, start storing to buffer
+    if(GGA_CODE[0] == 'G' && GGA_CODE[1] == 'P' && GGA_CODE[2] == 'G' && GGA_CODE[3] == 'G' && GGA_CODE[4] == 'A'){
+      IsItGGAString = 1;
+    }else{ //if not GPGGA, restart
+      found_start = 0;
+    } 
+  }else if(found_start){ //if start, but not found all code, continue getting character for GPGGA
+    GGA_CODE[code_index++] = received_char;
+  }
+  
 }
 
 
 void serial_init(){
 	// initialize USART (must call this before using it)
 	UBRR0=MYUBRR; // set baud rate
-  UCSR0B|=(1<<RXEN0); //enable RX
+  UCSR0B|=(1<<RXEN0); //enable RX 
 	UCSR0B|=(1<<RXCIE0); //RX complete interrupt
 	UCSR0C|=(1<<UCSZ01)|(1<<UCSZ01); // no parity, 1 stop bit, 8-bit data
-}
-
-void reverse(char *str, int len)
-{
-    int i=0, j=len-1, temp;
-    while (i<j)
-    {
-        temp = str[i];
-        str[i] = str[j];
-        str[j] = temp;
-        i++; j--;
-    }
-}
-int intToStr(int x, char str[], int d)
-{
-    int i = 0;
-    while (x)
-    {
-        str[i++] = (x%10) + '0';
-        x = x/10;
-    }
-
-    // If number of digits required is more, then
-    // add 0s at the beginning
-    while (i < d)
-        str[i++] = '0';
-
-    reverse(str, i);
-    str[i] = '\0';
-    return i;
-}
-
-
-void ftoa(float n, char *res, int afterpoint)
-{
-    // Extract integer part
-    int ipart = (int)n;
-
-    // Extract floating part
-    float fpart = n - (float)ipart;
-
-    // convert integer part to string
-    int i = intToStr(ipart, res, 0);
-
-    // check for display option after point
-    if (afterpoint != 0)
-    {
-        res[i] = '.';  // add dot
-
-        // Get the value of fraction part upto given no.
-        // of points after dot. The third parameter is needed
-        // to handle cases like 233.007
-        fpart = fpart * pow(10, afterpoint);
-
-        intToStr((int)fpart, res + i + 1, afterpoint);
-    }
 }

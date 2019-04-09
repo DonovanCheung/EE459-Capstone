@@ -52,10 +52,14 @@ void lcd_init(void)
 */
 void lcd_moveto(unsigned char row, unsigned char col)
 {
-	 unsigned char pos = 0x80;
-	 if(row == 0){
-	 pos = 0xc0;
- }
+	 unsigned char pos = 0x00;
+	 if(row == 1){
+	 	pos = 0x40;
+	 }else if(row == 2){
+	 	pos = 0x14;
+	 }else if(row == 3){
+	 	pos = 0x54;
+	 }
  pos +=col;
  lcd_writecommand(pos);
 }
