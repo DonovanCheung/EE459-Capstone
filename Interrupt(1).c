@@ -11,6 +11,7 @@
 #define FOSC 7372800            // Clock frequency: 7.3728MHz
 #define BAUD 9600               // Baud rate used
 #define MYUBRR FOSC/16/BAUD-1   // Value for UBRR0 register
+#define MAXCHAR 1000
 
 void serial_init();
 void init_timer(unsigned short);
@@ -30,6 +31,21 @@ volatile uint16_t GGA_Index, code_index;
 
 
 int main(void){
+  FILE *fp;
+   char str[MAXCHAR];
+   char* filename = "c:\\temp\\test.txt";
+
+   fp = fopen(filename, "r");
+   if (fp == NULL){
+       printf("Could not open file %s",filename);
+       //return 1;
+   }
+   else{
+     while (fgets(str, MAXCHAR, fp) != NULL){
+       printf("%s", str);
+     }
+   }
+   fclose(fp);
 
   lcd_init();                 // Initialize the LCD display
   lcd_moveto(0, 0);
@@ -46,15 +62,15 @@ int main(void){
 	float lat;		//Latitude
 	struct GPS gps;
 	struct GPS* gps_ptr = &gps;
-	
+
 	char buf[6];
-	
-	
+
+
 
   while(1){
     //check to see if found entire string and print to lcd
     if(end_string){
-		
+
       cli();
     /*	num = parse(GGA_Buffer, gps_ptr);	//Uncomment when ready to test parse
 		if(num){
@@ -64,9 +80,9 @@ int main(void){
 			lcd_stringout("Lat: ");
 			lcd_stringout(buf);
 			_delay_ms(50);
-			
+
 		} */
-	  lcd_stringout(GGA_Buffer);	//Comment out when 
+	  lcd_stringout(GGA_Buffer);	//Comment out when
       end_string = 0;
       sei();
     }
@@ -89,7 +105,7 @@ ISR(USART_RX_vect){
       found_start = 1;
       GGA_Index = 0;
       code_index = 0;
-      IsItGGAString = 0;  
+      IsItGGAString = 0;
     }
   }
   else if(IsItGGAString){ //if GPGGA, store in GGA buffer
@@ -101,20 +117,19 @@ ISR(USART_RX_vect){
       IsItGGAString = 1;
     }else{ //if not GPGGA, restart
       found_start = 0;
-    } 
+    }
   }
   else if(found_start){ //if start, but not found all code, continue getting character for GPGGA
     GGA_CODE[code_index++] = received_char;
   }
-  
+
 }
 
 
 void serial_init(){
 	// initialize USART (must call this before using it)
 	UBRR0=MYUBRR; // set baud rate
-	UCSR0B|=(1<<RXEN0); //enable RX 
+	UCSR0B|=(1<<RXEN0); //enable RX
 	UCSR0B|=(1<<RXCIE0); //RX complete interrupt
 	UCSR0C|=(1<<UCSZ01)|(1<<UCSZ01); // no parity, 1 stop bit, 8-bit data
 }
-
