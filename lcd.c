@@ -52,16 +52,25 @@ void lcd_init(void)
 */
 void lcd_moveto(unsigned char row, unsigned char col)
 {
-	 unsigned char pos = 0x00;
-	 if(row == 1){
-	 	pos = 0x40;
-	 }else if(row == 2){
-	 	pos = 0x14;
-	 }else if(row == 3){
-	 	pos = 0x54;
-	 }
- pos +=col;
- lcd_writecommand(pos);
+	//  unsigned char pos = 0x00;
+	//  if(row == 1){
+	//  	pos = 0x40;
+	//  }else if(row == 2){
+	//  	pos = 0x14;
+	//  }else if(row == 3){
+	//  	pos = 0x54;
+	//  }
+ // pos +=col;
+ // lcd_writecommand(pos);
+	// unsigned char pos;
+ //    pos = row * 0x40 + col;
+ //    lcd_writecommand(pos);
+	int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
+	if ( row > 4 ) {
+	  row = 3;    // we count rows starting w/0
+	}
+  
+  lcd_writecommand(0x80 | (col + row_offsets[row]));
 }
 
 /*
