@@ -124,7 +124,7 @@ void init_points(struct Map* map_ptr)
         points += 1;
     }
 
-    printf("points: %d \n", points);
+  //  printf("points: %d \n", points);
 
     fclose(fp);
 
@@ -145,8 +145,8 @@ void init_points(struct Map* map_ptr)
 
     while ((read = getline(&line_2, &len, fp)) != -1) 
     {
-        printf("Second read %d:\n", read);
-        printf("%s", line_2);
+       // printf("Second read %d:\n", read);
+       // printf("%s", line_2);
 
         int initial_size = strlen(line_2);
         char *ptr = strtok(line_2, delim);
@@ -170,8 +170,8 @@ void init_points(struct Map* map_ptr)
     
     for(int j = 0; j < points; j++)
     {
-        map_ptr->checkpoint[j]->latitudeDegrees = latitude_points[j];
-        map_ptr->checkpoint[j]->longitudeDegrees = longitude_points[j];
+        map_ptr->checkpoint[j].latitudeDegrees = latitude_points[j];
+        map_ptr->checkpoint[j].longitudeDegrees = longitude_points[j];
     }
 
 }
