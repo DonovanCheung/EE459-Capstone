@@ -4,6 +4,7 @@
 #include <math.h>
 #include "map.h"
 
+
 double distanceNext(struct GPS* current, struct Map* map){
 	return calcDistance(current, map->next);
 }
@@ -22,6 +23,11 @@ char* directionTo(struct GPS* current, struct GPS* to){
 
 	return dir;
 }
+
+char* directionNext(struct GPS* current, struct Map* map){
+	return directionTo(current, map->next);
+}
+
 char* nextCheck(struct GPS* current, struct Map* map){
 	char* str;
 	double rad;		//radians
@@ -49,6 +55,27 @@ double calcDistance(struct GPS* current, struct GPS* gps){
   double c = 2 * atan2(sqrt(a), sqrt(1-a));
   double d = R * c;
   return d;
+}
+
+double distFromMap(struct GPS* current, struct Map* map){
+	double n = sqrt(pow(calcDistance(current,map->next),2) + pow(calcDistance(current,map->next),2));
+	double p = sqrt(pow(calcDistance(current,map->prev),2) + pow(calcDistance(current,map->prev),2)); 
+	
+	if(n < p) return n;
+	else return p;
+}
+
+void updateNext(struct GPS* current, struct Map* map){
+	if(!map->next) return; 
+	double dist = calcDistance(current,map->next);
+	if(dist < Range){
+		map->index +=1;
+		map->prev = map->next;
+		map->next = &map->checkpoint[map->index];
+		return;
+	}
+	else return;
+	
 }
 
 void ftoa(float n, char *res, int afterpoint){
@@ -102,8 +129,7 @@ int intToStr(int x, char str[], int d){
     return i;
 }
 
-void init_points(struct Map* map_ptr)
-{
+void init_points(struct Map* map_ptr){
     FILE* fp;
     char* line = NULL;
     size_t len = 0;
@@ -124,7 +150,7 @@ void init_points(struct Map* map_ptr)
         points += 1;
     }
 
-  //  printf("points: %d \n", points);
+    printf("points: %d \n", points);
 
     fclose(fp);
 
@@ -145,8 +171,8 @@ void init_points(struct Map* map_ptr)
 
     while ((read = getline(&line_2, &len, fp)) != -1) 
     {
-       // printf("Second read %d:\n", read);
-       // printf("%s", line_2);
+        printf("Second read %d:\n", read);
+        printf("%s", line_2);
 
         int initial_size = strlen(line_2);
         char *ptr = strtok(line_2, delim);
@@ -173,5 +199,7 @@ void init_points(struct Map* map_ptr)
         map_ptr->checkpoint[j].latitudeDegrees = latitude_points[j];
         map_ptr->checkpoint[j].longitudeDegrees = longitude_points[j];
     }
-
+	map_ptr->prev = &map_ptr->checkpoint[0];
+	map_ptr->next = &map_ptr->checkpoint[1];
+	map_ptr->index = 1;
 }
