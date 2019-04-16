@@ -16,6 +16,7 @@ struct Map{
 	struct GPS* next;
 };
 
+void init_points(struct Map* map_ptr);
 void reverse(char*, int);
 int intToStr(int, char[], int);
 void ftoa(float, char*, int);
