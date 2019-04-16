@@ -5,11 +5,11 @@
 #include <stdio.h>
 #include "gps.h"
 
-#define points 3
+#define totalPoints 3
 
 struct Map{
 
-	struct GPS checkpoint[points];
+	struct GPS checkpoint[totalPoints];
 	uint16_t range;					//Distance person can be from checkpoint
 	uint16_t displacement;			//How far a person actually is from checkpoint
 	struct GPS* prev;
