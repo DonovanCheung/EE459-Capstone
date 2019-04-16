@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "map.h"
 
@@ -98,4 +100,78 @@ int intToStr(int x, char str[], int d){
     reverse(str, i);
     str[i] = '\0';
     return i;
+}
+
+void init_points(struct Map* map_ptr)
+{
+    FILE* fp;
+    char* line = NULL;
+    size_t len = 0;
+    int read;    
+	
+    int points = 0;	
+
+    // read once to figure out how many points we need
+    fp = fopen("test.txt", "r");
+    
+    if (fp == NULL)
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    while ((read = getline(&line, &len, fp)) != -1) 
+    {
+        points += 1;
+    }
+
+    printf("points: %d \n", points);
+
+    fclose(fp);
+
+    // second read to store the points in an array
+    char* line_2 = NULL;
+    char delim[] = " ";
+    int i = 0;
+
+    float latitude_points[points];
+    float longitude_points[points];
+
+    fp = fopen("test.txt", "r");
+    
+    if (fp == NULL)
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    while ((read = getline(&line_2, &len, fp)) != -1) 
+    {
+        printf("Second read %d:\n", read);
+        printf("%s", line_2);
+
+        int initial_size = strlen(line_2);
+        char *ptr = strtok(line_2, delim);
+
+        // convert string to float and store 
+        latitude_points[i] = atof(ptr);
+        ptr = strtok(NULL, delim);
+        longitude_points[i] = atof(ptr);
+
+        i += 1;
+    }
+
+    fclose(fp);
+
+    /*for(int j = 0; j < points; j++)
+    {
+        printf("latitude_points: %f \n", latitude_points[j]);
+        printf("longitude_points: %f \n", longitude_points[j]);
+    }*/
+
+    
+    for(int j = 0; j < points; j++)
+    {
+        map_ptr->checkpoint[j]->latitudeDegrees = latitude_points[j];
+        map_ptr->checkpoint[j]->longitudeDegrees = longitude_points[j];
+    }
+
 }
