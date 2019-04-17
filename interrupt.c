@@ -60,13 +60,23 @@ int main(void){
   
  
   while(1){
-      _delay_ms(1000);
+    _delay_ms(1000); 
+    parse(GGA_Buffer, &gps); //get gps data in gps struct
 
-    
-      parse(GGA_Buffer, &gps); //get gps data in gps struct
+    lcd_moveto(0,0);
+    // lcd_stringout("CurrLoc: ");
+    memset(degrees_buffer,0,degrees_buffer_size);
+    dtostrf(gps.latitudeDegrees, 6, 2, degrees_buffer);
+    lcd_stringout(degrees_buffer);
+    memset(degrees_buffer,0,degrees_buffer_size);
+    dtostrf(gps.longitudeDegrees, 6, 2, degrees_buffer);
+    lcd_stringout(",");
+    lcd_stringout(degrees_buffer);
+
       lcd_moveto(1,0);
       lcd_stringout("DistNext: ");
      // dtostrf(gps.latitudeDegrees, 6, 4, degrees_buffer);
+    memset(degrees_buffer,0,degrees_buffer_size);
 	  dist =  distanceNext(gps_ptr, map_ptr);
 	  dtostrf(dist, 6, 4, degrees_buffer);
 	  lcd_stringout(degrees_buffer);

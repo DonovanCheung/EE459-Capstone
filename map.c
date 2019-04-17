@@ -4,7 +4,8 @@
 #include <math.h>
 #include "map.h"
 
-
+#define EXIT_FAILURE 1
+#define KM_TO_FEET 3280.84
 double distanceNext(struct GPS* current, struct Map* map){
 	return calcDistance(current, map->next);
 }
@@ -13,13 +14,30 @@ double distancePrev(struct GPS* current, struct Map* map){
 }
 char* directionTo(struct GPS* current, struct GPS* to){
 	char* dir;
-	if((current->longitude - to->longitude) > 0)
-		dir = "N";
-	else	dir = "S";
+	// if((current->longitude - to->longitude) > 0)
+	// 	dir = "N";
+	// else	dir = "S";
 
-	if((current->latitude - to->latitude) > 0)
-		dir = strcat(dir,"E");
-	else	dir = strcat(dir,"W");
+	// if((current->latitude - to->latitude) > 0)
+	// 	dir = strcat(dir,"E");
+	// else	dir = strcat(dir,"W");
+    if((current->longitude - to->longitude) > 0 && (current->latitude - to->latitude) > 0){
+        dir = "NE";
+    }else if((current->longitude - to->longitude) > 0 && (current->latitude - to->latitude) < 0){
+        dir = "NW";
+    }else if((current->longitude - to->longitude) < 0 && (current->latitude - to->latitude) > 0){
+        dir = "SE";
+    }else if((current->longitude - to->longitude) < 0 && (current->latitude - to->latitude) < 0){
+        dir = "SW";
+    }else if((current->longitude - to->longitude) > 0){
+        dir = "N";
+    }else if((current->longitude - to->longitude) < 0){
+        dir = "S";
+    }else if((current->latitude - to->latitude) > 0){
+        dir = "E";
+    }else{
+        dir = "W";
+    }
 
 	return dir;
 }
@@ -53,7 +71,7 @@ double calcDistance(struct GPS* current, struct GPS* gps){
     cos(degRadians(current->latitudeDegrees)) * sin(dLon/2) *
     sin(dLon/2);
   double c = 2 * atan2(sqrt(a), sqrt(1-a));
-  double d = R * c;
+  double d = R * c * KM_TO_FEET; //distance in miles
   return d;
 }
 
@@ -130,76 +148,82 @@ int intToStr(int x, char str[], int d){
 }
 
 void init_points(struct Map* map_ptr){
-    FILE* fp;
-    char* line = NULL;
-    size_t len = 0;
-    int read;    
+    // FILE* fp;
+    // char* line = NULL;
+    // size_t len = 0;
+    // int read;    
 	
-    int points = 0;	
+    // int points = 0;	
 
-    // read once to figure out how many points we need
-    fp = fopen("test.txt", "r");
+    // // read once to figure out how many points we need
+    // fp = fopen("test.txt", "r");
     
-    if (fp == NULL)
-    {
-        exit(EXIT_FAILURE);
-    }
+    // if (fp == NULL)
+    // {
+    //     exit(EXIT_FAILURE);
+    // }
 
-    while ((read = getline(&line, &len, fp)) != -1) 
-    {
-        points += 1;
-    }
+    // while ((read = getline(&line, &len, fp)) != -1) 
+    // {
+    //     points += 1;
+    // }
 
-    printf("points: %d \n", points);
+    // printf("points: %d \n", points);
 
-    fclose(fp);
+    // fclose(fp);
 
-    // second read to store the points in an array
-    char* line_2 = NULL;
-    char delim[] = " ";
-    int i = 0;
+    // // second read to store the points in an array
+    // char* line_2 = NULL;
+    // char delim[] = " ";
 
-    float latitude_points[points];
-    float longitude_points[points];
+    // int i = 0;
 
-    fp = fopen("test.txt", "r");
+    // float latitude_points[points];
+    // float longitude_points[points];
+
+    // fp = fopen("test.txt", "r");
     
-    if (fp == NULL)
-    {
-        exit(EXIT_FAILURE);
-    }
+    // if (fp == NULL)
+    // {
+    //     exit(EXIT_FAILURE);
+    // }
 
-    while ((read = getline(&line_2, &len, fp)) != -1) 
-    {
-        printf("Second read %d:\n", read);
-        printf("%s", line_2);
+    // while ((read = getline(&line_2, &len, fp)) != -1) 
+    // {
+    //     printf("Second read %d:\n", read);
+    //     printf("%s", line_2);
 
-        int initial_size = strlen(line_2);
-        char *ptr = strtok(line_2, delim);
+    //     int initial_size = strlen(line_2);
+    //     char *ptr = strtok(line_2, delim);
 
-        // convert string to float and store 
-        latitude_points[i] = atof(ptr);
-        ptr = strtok(NULL, delim);
-        longitude_points[i] = atof(ptr);
+    //     // convert string to float and store 
+    //     latitude_points[i] = atof(ptr);
+    //     ptr = strtok(NULL, delim);
+    //     longitude_points[i] = atof(ptr);
 
-        i += 1;
-    }
+    //     i += 1;
+    // }
 
-    fclose(fp);
+    // fclose(fp);
 
     /*for(int j = 0; j < points; j++)
     {
         printf("latitude_points: %f \n", latitude_points[j]);
         printf("longitude_points: %f \n", longitude_points[j]);
     }*/
+    int points = 6;
+    float latitude_points[] = {34.020331, 34.020201, 34.020403, 34.020560,
+        34.020458, 34.020282};
+    float longitude_points[] = {-118.289703, -118.289425, -118.289213, 
+        -118.289106, -118.288494};
 
-    
-    for(int j = 0; j < points; j++)
+    int j;
+    for(j = 0; j < points; j++)
     {
         map_ptr->checkpoint[j].latitudeDegrees = latitude_points[j];
         map_ptr->checkpoint[j].longitudeDegrees = longitude_points[j];
     }
-	map_ptr->prev = &map_ptr->checkpoint[0];
-	map_ptr->next = &map_ptr->checkpoint[1];
+	map_ptr->prev = NULL;
+	map_ptr->next = &map_ptr->checkpoint[0];
 	map_ptr->index = 1;
 }
