@@ -5,32 +5,32 @@
 #include <stdio.h>
 #include "gps.h"
 
-#define totalPoints 3
-#define Range 5
+// #define totalPoints 3
+#define Range 20
+
+struct Point{
+	float latitude;
+	float longitude;
+	struct Point *prev;
+	struct Point *next;
+};
 
 struct Map{
 
-	struct GPS checkpoint[totalPoints];
-	//uint16_t displacement;			//How far a person actually is from checkpoint
-	struct GPS* prev;
-	struct GPS* next;
+	int totalPoints;
+	struct Point *head;
+	struct Point *curr;
 	int index;
 };
 
-void init_points(struct Map* map_ptr);
-void reverse(char*, int);
-int intToStr(int, char[], int);
-void ftoa(float, char*, int);
+void init_map(struct Map* map_ptr, float points[][2], int numPoints);
 double radDegrees(double rad);
 
 void updateNext(struct GPS* current, struct Map* map);
-double distanceNext(struct GPS* current, struct Map* map);
-double distancePrev(struct GPS* current,struct Map* map);
-char* directionTo(struct GPS* current, struct GPS* to);
-char* directionNext(struct GPS* current, struct Map* map);
-char* nextCheck(struct GPS* current, struct Map* map);	//output ex: "30 degrees NW"
+double distanceNext(struct GPS * gps, struct Point* current);
+char* directionTo(struct Point* current, struct Point* to);
+char* directionNext(struct Point* current);
 
 
-double calcDistance(struct GPS* current, struct GPS* gps);
-double distFromMap(struct GPS* current, struct Map* map); 
+double calcDistance(struct GPS* current, struct Point* to);
 #endif
