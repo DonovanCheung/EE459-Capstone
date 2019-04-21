@@ -78,8 +78,18 @@ int main(void){
   _delay_ms(3000);
   lcd_clear();
 
-
   while(1){
+    _delay_ms(30000);
+    lcd_moveto(0,0);
+    struct Point* pt = map.curr;
+    memset(degrees_buffer,0,degrees_buffer_size);
+    dtostrf(pt->gps->latitudeDegrees, 9, 6, degrees_buffer);
+    lcd_stringout(degrees_buffer);
+    memset(degrees_buffer,0,degrees_buffer_size);
+    dtostrf(pt->gps->longitudeDegrees, 9, 6, degrees_buffer);
+    lcd_stringout(",");
+    lcd_stringout(degrees_buffer);
+    if(pt->next) map.curr = pt->next;
     /*
     if (screen == MAINMENU){
       if (refresh_count == refresh_rate){
@@ -144,45 +154,45 @@ int main(void){
       lcd_stringout("Back");
     }*/
 
-    _delay_ms(1000); 
-    parse(GGA_Buffer, &gps);
-    lcd_moveto(0,0);
+    // _delay_ms(1000); 
+    // parse(GGA_Buffer, &gps);
+    // lcd_moveto(0,0);
 
-    //tally of check points
-    struct Point* currPoint = map.curr;
+    // //tally of check points
+    // struct Point* currPoint = map.curr;
 
-    lcd_moveto(0,0);
-    lcd_stringout("Checkpoint ");
-    memset(res, 0, 5);
-    itoa(map.index, res, 3);
-    lcd_stringout(res);
-    lcd_stringout(" of ");
-    memset(res, 0, 5);
-    itoa(map.totalPoints, res, 3);
-    lcd_stringout(res);
+    // lcd_moveto(0,0);
+    // lcd_stringout("Checkpoint ");
+    // memset(res, 0, 5);
+    // itoa(map.index, res, 3);
+    // lcd_stringout(res);
+    // lcd_stringout(" of ");
+    // memset(res, 0, 5);
+    // itoa(map.totalPoints, res, 3);
+    // lcd_stringout(res);
 
-    //Next point
-    lcd_moveto(1,0);
-    lcd_stringout("Next: ");
-    memset(degrees_buffer,0,degrees_buffer_size);
-    dist =  distanceNext(&gps, currPoint);
-    dtostrf(dist, 6, 2, degrees_buffer);
-    lcd_stringout(degrees_buffer);
-    direction = directionNext(&gps, currPoint);
-    lcd_stringout(" ");
-    lcd_stringout(direction);
-    updateNext(&gps, &map);
+    // //Next point
+    // lcd_moveto(1,0);
+    // lcd_stringout("Next: ");
+    // memset(degrees_buffer,0,degrees_buffer_size);
+    // dist =  distanceNext(&gps, currPoint);
+    // dtostrf(dist, 6, 2, degrees_buffer);
+    // lcd_stringout(degrees_buffer);
+    // direction = directionNext(&gps, currPoint);
+    // lcd_stringout(" ");
+    // lcd_stringout(direction);
+    // updateNext(&gps, &map);
 
-    //current point
-    lcd_moveto(2, 0);
-    //print current location
-    memset(degrees_buffer,0,degrees_buffer_size);
-    dtostrf(gps.latitude, 6, 4, degrees_buffer);
-    lcd_stringout(degrees_buffer);
-    lcd_stringout(" ");
-    memset(degrees_buffer,0,degrees_buffer_size);
-    dtostrf(gps.longitude, 6, 4, degrees_buffer);
-    lcd_stringout(degrees_buffer);
+    // //current point
+    // lcd_moveto(2, 0);
+    // //print current location
+    // memset(degrees_buffer,0,degrees_buffer_size);
+    // dtostrf(gps.latitude, 6, 4, degrees_buffer);
+    // lcd_stringout(degrees_buffer);
+    // lcd_stringout(" ");
+    // memset(degrees_buffer,0,degrees_buffer_size);
+    // dtostrf(gps.longitude, 6, 4, degrees_buffer);
+    // lcd_stringout(degrees_buffer);
 
     /*
     if (flag == 1){

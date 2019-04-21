@@ -3,12 +3,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include<math.h>
 #include "gps.h"
 
 #define Range 5
 
 struct Point{
-	struct GPS gps;
+	struct GPS * gps;
 	struct Point *prev;
 	struct Point *next;
 };

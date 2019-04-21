@@ -8,7 +8,7 @@
 #define KM_TO_FEET 3280.84
 
 double distanceNext(struct GPS* current, struct Point* pt){
-	return calcDistance(current, &(pt->next->gps));
+	return calcDistance(current, pt->next->gps);
 }
 
 char* directionTo(struct GPS* current, struct GPS* to){
@@ -35,7 +35,7 @@ char* directionTo(struct GPS* current, struct GPS* to){
 }
 
 char* directionNext(struct GPS* current, struct Point* pt){
-	return directionTo(current, &(pt->next->gps));
+	return directionTo(current, pt->next->gps);
 }
 
 double radDegrees(double rad){return (180/3.141593)*rad;}
@@ -55,7 +55,7 @@ double calcDistance(struct GPS* current, struct GPS* gps){
 
 void updateNext(struct GPS* current, struct Map* map){
 	if(!(map->curr->next)) return; 
-	double dist = calcDistance(current,&(map->curr->next->gps));
+	double dist = calcDistance(current,map->curr->next->gps);
 	if(dist < Range){
 		map->index +=1;
 		// map->prev = map->next;
@@ -74,8 +74,11 @@ void init_map(struct Map* map_ptr, float points[][2], int numPoints){
     map_ptr->curr = NULL;
 
     struct Point* head = (struct Point*)malloc(sizeof(struct Point)); 
-    head->gps.latitudeDegrees  = points[0][0];
-    head->gps.longitudeDegrees = points[0][1]; 
+    struct GPS * head_gps = (struct GPS*)malloc(sizeof(struct GPS));
+
+    head_gps->latitudeDegrees  = points[0][0];
+    head_gps->longitudeDegrees = points[0][1]; 
+    head->gps = head_gps;
     head->prev = NULL;
     head->next = NULL;
 
@@ -85,8 +88,12 @@ void init_map(struct Map* map_ptr, float points[][2], int numPoints){
     int j;
     for(j = 1; j < numPoints; j++){
         struct Point* new_point = (struct Point*)malloc(sizeof(struct Point)); 
-        new_point->gps.latitudeDegrees = points[j][0];
-        new_point->gps.longitudeDegrees = points[j][1];
+        struct GPS * new_gps = (struct GPS*)malloc(sizeof(struct GPS));
+        // printf("%f, %f\n", points[j][0], points[j][1]);
+        new_gps->latitudeDegrees = points[j][0];
+        new_gps->longitudeDegrees = points[j][1];
+        new_point->gps = new_gps;
+        // printf("%f, %f\n", new_point->gps.latitudeDegrees, new_point->gps.longitudeDegrees);
         new_point->prev = prev;
         new_point->next = NULL;
         prev->next = new_point;
