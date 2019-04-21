@@ -60,6 +60,15 @@ int main(void){
   sei(); // Enable Global Interrupt Enable Flag
   lcd_clear();
 
+  struct GPS gps; //struct for GPS
+  struct Map map; //struct for Map
+  double dist; //distance to next location
+  char* direction; //direction to next location
+  float pointsA[7][2] = {{34.020331, -118.289703}, {34.020201, -118.289425}, {34.020403, -118.289213}, 
+    {34.020560, -118.289106}, {34.020458, -118.288893}, {34.020331, -118.288690}, {34.020331, -118.288494}};
+  init_map(&map, pointsA, (int)(sizeof(pointsA)/sizeof(pointsA[0]))); //initialize map
+  char res[5]; //hold test values to print out
+
   // Splash Screen
   lcd_moveto(0,7);
   lcd_stringout("Welcome");
@@ -70,19 +79,8 @@ int main(void){
   _delay_ms(3000);
   lcd_clear();
 
-  /*struct GPS gps;
-  struct GPS* gps_ptr;
-  struct Map map;
-  struct Map* map_ptr;
-  gps_ptr = &gps;
-  map_ptr = &map;
-  init_points(map_ptr);
-  double dist;
-  char* direction;*/
-
-
   while(1){
-    //_delay_ms(1000);
+    /*
     if (screen == MAINMENU){
       if (refresh_count == refresh_rate){
         lcd_clear();
@@ -144,43 +142,54 @@ int main(void){
       lcd_stringout("Coming Soon");
       lcd_moveto(3,0);
       lcd_stringout("Back");
-    }
-    /*
-    if (flag == 1){
-      parse(GGA_Buffer, &gps); //get gps data in gps struct
+    }*/
+    
+    struct Point* pt = map.curr;
+    // memset(degrees_buffer,0,degrees_buffer_size);
+    // dtostrf(pt->gps->latitudeDegrees, 9, 6, degrees_buffer);
+    // lcd_stringout(degrees_buffer);
+    // memset(degrees_buffer,0,degrees_buffer_size);
+    // dtostrf(pt->gps->longitudeDegrees, 9, 6, degrees_buffer);
+    // lcd_stringout(",");
+    // lcd_stringout(degrees_buffer);
+    // if(pt->next) map.curr = pt->next;
 
-      lcd_moveto(0,0);
-      // lcd_stringout("CurrLoc: ");
-      memset(degrees_buffer,0,degrees_buffer_size);
-      dtostrf(gps.latitudeDegrees, 6, 2, degrees_buffer);
-      lcd_stringout(degrees_buffer);
-      memset(degrees_buffer,0,degrees_buffer_size);
-      dtostrf(gps.longitudeDegrees, 6, 2, degrees_buffer);
-      lcd_stringout(",");
-      lcd_stringout(degrees_buffer);
+    _delay_ms(1000); 
+    parse(GGA_Buffer, &gps);
+    lcd_moveto(0,0);
 
-        lcd_moveto(1,0);
-        lcd_stringout("DistNext: ");
-       // dtostrf(gps.latitudeDegrees, 6, 4, degrees_buffer);
-      memset(degrees_buffer,0,degrees_buffer_size);
-  	  dist =  distanceNext(gps_ptr, map_ptr);
-  	  dtostrf(dist, 6, 4, degrees_buffer);
-  	  lcd_stringout(degrees_buffer);
-  	  direction = directionNext(gps_ptr,map_ptr);
-  	  lcd_moveto(2,0);
-  	  lcd_stringout(direction);
+    //tally of check points
+    lcd_stringout("Checkpoint ");
+    memset(res, 0, 5);
+    itoa(map.index, res, 3);
+    lcd_stringout(res);
+    lcd_stringout(" of ");
+    memset(res, 0, 5);
+    itoa(map.totalPoints, res, 3);
+    lcd_stringout(res);
 
-      /*  lcd_stringout(degrees_buffer);
-        memset(degrees_buffer,0,degrees_buffer_size);
+    //Next point
+    lcd_moveto(1,0);
+    lcd_stringout("Next: ");
+    memset(degrees_buffer,0,degrees_buffer_size);
+    dist =  distanceNext(&gps, pt);
+    dtostrf(dist, 6, 2, degrees_buffer);
+    lcd_stringout(degrees_buffer);
+    direction = directionNext(&gps, pt);
+    lcd_stringout(" ");
+    lcd_stringout(direction);
+    updateNext(&gps, &map);
 
-        lcd_moveto(2,0);
-        lcd_stringout("Long:");
-        dtostrf(gps.longitudeDegrees, 6, 4, degrees_buffer);
-
-        lcd_stringout(degrees_buffer);
-        memset(degrees_buffer,0,degrees_buffer_size);
-  	*/
-  //}
+    //current point
+    lcd_moveto(2, 0);
+    //print current location
+    memset(degrees_buffer,0,degrees_buffer_size);
+    dtostrf(gps.latitude, 6, 4, degrees_buffer);
+    lcd_stringout(degrees_buffer);
+    lcd_stringout(" ");
+    memset(degrees_buffer,0,degrees_buffer_size);
+    dtostrf(gps.longitude, 6, 4, degrees_buffer);
+    lcd_stringout(degrees_buffer);
 
 	}
 
@@ -190,7 +199,7 @@ int main(void){
 
 ISR(USART_RX_vect){
   uint8_t oldsrg = SREG;
-  //cli();
+  cli();
   char received_char = UDR0;
 
   if(received_char =='$'){                                                    /* check for '$' */
