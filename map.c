@@ -20,7 +20,7 @@ double calcDistance_long(struct GPS* current, struct GPS* gps){
     cos(degRadians(current->latitudeDegrees)) * sin(dLon/2) *
     sin(dLon/2);
   double c = 2 * atan2(sqrt(a), sqrt(1-a));
-  double d = R * c * KM_TO_FEET; //distance in miles
+  double d = R * c * 1000; //distance in miles
   return d;
 }
 
@@ -32,15 +32,14 @@ double calcDistance_lat(struct GPS* current, struct GPS* gps){
     cos(degRadians(current->latitudeDegrees)) * sin(dLon/2) *
     sin(dLon/2);
   double c = 2 * atan2(sqrt(a), sqrt(1-a));
-  double d = R * c * KM_TO_FEET; //distance in miles
+  double d = R * c * 1000; //distance in miles
   return d;
 }
 
 char* directionTo(struct GPS* current, struct GPS* to){
-    char* dir;
+    char* dir = "";
     double long_dist = calcDistance_long(current, to);
     double lat_dist = calcDistance_lat(current, to);
-    strcpy(dir, "");
     if(long_dist > 5){
         if(current->longitude > to->longitude){
             strcpy(dir, "S");
@@ -92,14 +91,14 @@ double calcDistance(struct GPS* current, struct GPS* gps){
     cos(degRadians(current->latitudeDegrees)) * sin(dLon/2) *
     sin(dLon/2);
   double c = 2 * atan2(sqrt(a), sqrt(1-a));
-  double d = R * c * KM_TO_FEET; //distance in miles
+  double d = R * c * 1000; //distance in miles
   return d;
 }
 
 void updateNext(struct GPS* current, struct Map* map){
     if(!(map->curr->next)) return; 
     double dist = calcDistance(current,map->curr->next->gps);
-    if(dist < 5){
+    if(dist < 15){
         map->index = map->index + 1;
         map->curr = map->curr->next;
         return;
