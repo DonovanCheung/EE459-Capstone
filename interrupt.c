@@ -48,6 +48,17 @@ volatile char screen = MAINMENU;
 char refresh_count = 0;
 char refresh_rate = 7;
 
+
+struct Map map; //struct for Map
+float pointsA[7][2] = {{34.020331, -118.289703}, {34.020201, -118.289425}, {34.020403, -118.289213},
+  {34.020560, -118.289106}, {34.020458, -118.288893}, {34.020331, -118.288690}, {34.020331, -118.288494}};
+float pointsB[9][2] = {{34.020360, -118.285336}, {34.020655, -118.286029}, {34.021209, -118.286114},
+  {34.021448, -118.285556}, {34.021779, -118.285118}, {34.022275, -118.284795}, {34.022400, -118.285506},
+  {34.022776, -118.286293}, {34.023539, -118.288026}};
+float pointsC[8][2] = {{34.020360, -118.285336}, {34.020524, -118.284555}, {34.020789, -118.283933},
+  {34.020674, -118.283602}, {34.020926, -118.283128}, {34.021194, -118.282637}, {34.020771, -118.281816},
+  {34.020457, -118.281062}};
+
 int main(void){
   GGA_Index = 0;
   memset(GGA_Buffer, 0, 150); //set GGA_Buffer to beginning
@@ -61,12 +72,8 @@ int main(void){
   lcd_clear();
 
   struct GPS gps; //struct for GPS
-  struct Map map; //struct for Map
   double dist; //distance to next location
   char* direction; //direction to next location
-  float pointsA[7][2] = {{34.020331, -118.289703}, {34.020201, -118.289425}, {34.020403, -118.289213}, 
-    {34.020560, -118.289106}, {34.020458, -118.288893}, {34.020331, -118.288690}, {34.020331, -118.288494}};
-  init_map(&map, pointsA, (int)(sizeof(pointsA)/sizeof(pointsA[0]))); //initialize map
   char res[5]; //hold test values to print out
 
   // Splash Screen
@@ -80,7 +87,6 @@ int main(void){
   lcd_clear();
 
   while(1){
-    /*
     if (screen == MAINMENU){
       if (refresh_count == refresh_rate){
         lcd_clear();
@@ -136,60 +142,62 @@ int main(void){
       else{
         refresh_count++;
       }
-      lcd_moveto(0,0);
+      /*lcd_moveto(0,0);
       lcd_stringout("NAV Display");
       lcd_moveto(1,0);
       lcd_stringout("Coming Soon");
       lcd_moveto(3,0);
-      lcd_stringout("Back");
-    }*/
-    
-    struct Point* pt = map.curr;
-    // memset(degrees_buffer,0,degrees_buffer_size);
-    // dtostrf(pt->gps->latitudeDegrees, 9, 6, degrees_buffer);
-    // lcd_stringout(degrees_buffer);
-    // memset(degrees_buffer,0,degrees_buffer_size);
-    // dtostrf(pt->gps->longitudeDegrees, 9, 6, degrees_buffer);
-    // lcd_stringout(",");
-    // lcd_stringout(degrees_buffer);
-    // if(pt->next) map.curr = pt->next;
+      lcd_stringout("Back");*/
 
-    _delay_ms(1000); 
-    parse(GGA_Buffer, &gps);
-    lcd_moveto(0,0);
+      struct Point* pt = map.curr;
+      // memset(degrees_buffer,0,degrees_buffer_size);
+      // dtostrf(pt->gps->latitudeDegrees, 9, 6, degrees_buffer);
+      // lcd_stringout(degrees_buffer);
+      // memset(degrees_buffer,0,degrees_buffer_size);
+      // dtostrf(pt->gps->longitudeDegrees, 9, 6, degrees_buffer);
+      // lcd_stringout(",");
+      // lcd_stringout(degrees_buffer);
+      // if(pt->next) map.curr = pt->next;
 
-    //tally of check points
-    lcd_stringout("Checkpoint ");
-    memset(res, 0, 5);
-    itoa(map.index, res, 3);
-    lcd_stringout(res);
-    lcd_stringout(" of ");
-    memset(res, 0, 5);
-    itoa(map.totalPoints, res, 3);
-    lcd_stringout(res);
+      //_delay_ms(1000);
+      parse(GGA_Buffer, &gps);
+      lcd_moveto(0,0);
 
-    //Next point
-    lcd_moveto(1,0);
-    lcd_stringout("Next: ");
-    memset(degrees_buffer,0,degrees_buffer_size);
-    dist =  distanceNext(&gps, pt);
-    dtostrf(dist, 6, 2, degrees_buffer);
-    lcd_stringout(degrees_buffer);
-    direction = directionNext(&gps, pt);
-    lcd_stringout(" ");
-    lcd_stringout(direction);
-    updateNext(&gps, &map);
+      //tally of check points
+      lcd_stringout("Checkpoint ");
+      memset(res, 0, 5);
+      itoa(map.index, res, 3);
+      lcd_stringout(res);
+      lcd_stringout(" of ");
+      memset(res, 0, 5);
+      itoa(map.totalPoints, res, 3);
+      lcd_stringout(res);
 
-    //current point
-    lcd_moveto(2, 0);
-    //print current location
-    memset(degrees_buffer,0,degrees_buffer_size);
-    dtostrf(gps.latitude, 6, 4, degrees_buffer);
-    lcd_stringout(degrees_buffer);
-    lcd_stringout(" ");
-    memset(degrees_buffer,0,degrees_buffer_size);
-    dtostrf(gps.longitude, 6, 4, degrees_buffer);
-    lcd_stringout(degrees_buffer);
+      //Next point
+      lcd_moveto(1,0);
+      lcd_stringout("Next: ");
+      memset(degrees_buffer,0,degrees_buffer_size);
+      dist =  distanceNext(&gps, pt);
+      dtostrf(dist, 6, 2, degrees_buffer);
+      lcd_stringout(degrees_buffer);
+      direction = directionNext(&gps, pt);
+      lcd_stringout(" ");
+      lcd_stringout(direction);
+      updateNext(&gps, &map);
+
+      //current point
+      lcd_moveto(2, 0);
+      //print current location
+      memset(degrees_buffer,0,degrees_buffer_size);
+      dtostrf(gps.latitude, 6, 4, degrees_buffer);
+      lcd_stringout(degrees_buffer);
+      lcd_stringout(" ");
+      memset(degrees_buffer,0,degrees_buffer_size);
+      dtostrf(gps.longitude, 6, 4, degrees_buffer);
+      lcd_stringout(degrees_buffer);
+    }
+
+
 
 	}
 
@@ -225,15 +233,57 @@ ISR(USART_RX_vect){
   SREG = oldsrg;
 }
 
-ISR(PCINT1_vect){
-  // Button #1 pressed
-  if ((PIN1 & (1<<PC1)) == 0){
+ISR(PCINT2_vect){
+  if ((PIND & (1<<PD1)) == 0){ // Button #1 pressed
     if (screen == MAINMENU){
-      screen = NAVDISPLAY;
+      screen = PATHMENU;
+      _delay_ms(1000);
     }
     else if (screen == PATHMENU){
-
+      init_map(&map, pointsA, (int)(sizeof(pointsA)/sizeof(pointsA[0]))); //initialize map
+      screen = NAVDISPLAY;
+      _delay_ms(1000);
     }
+  }
+  else if ((PIND & (1<<PD2)) == 0){ // Button #2 pressed
+    if (screen == MAINMENU){
+      screen = SENDLOC;
+      _delay_ms(1000);
+    }
+    else if (screen == PATHMENU){
+      init_map(&map, pointsB, (int)(sizeof(pointsB)/sizeof(pointsB[0]))); //initialize map
+      screen = NAVDISPLAY;
+      _delay_ms(1000);
+    }
+  }
+  else if ((PIND & (1<<PD3)) == 0){  // Button #3 pressed
+    if (screen == MAINMENU){
+      //screen = SENDLOC;
+    }
+    else if (screen == PATHMENU){
+      init_map(&map, pointsC, (int)(sizeof(pointsC)/sizeof(pointsC[0]))); //initialize map
+      screen = NAVDISPLAY;
+      _delay_ms(1000);
+    }
+  }
+}
+
+ISR(PCINT1_vect){
+  // Button #4 pressed
+  if ((PINC & (1<<PC1)) == 0){
+    screen = MAINMENU;
+    _delay_ms(1000);
+
+    /*if (screen == MAINMENU){
+      //screen = SENDLOC;
+    }
+    else if (screen == PATHMENU){
+      screen = MAINMENU;
+    }
+    else if (screen == SENDLOC){
+      screen = MAINMENU;
+    }
+    else if */
   }
 }
 
@@ -249,10 +299,12 @@ void serial_init(){
 }
 
 void button_init(){
-  DDRC &= ~(1 << PC1);     // Clear the PD1 pin
-  // PC4 (PCINT12 pin) is now an input
+  DDRD &= ~((1 << PD1) | (1 << PD2) | (1 << PD3));     // Clear the PD1, PD2, and PD3 pin
+  PORTD |= ((1 << PD1) | (1 << PD2) | (1 << PD3));    // turn On the Pull-up
+  PCICR |= ((1 << PCIE2) | (1 << PCIE1));				// Enable interrupts for Port C and D
+	PCMSK2 |= ((1 << PCINT17) | (1 << PCINT18) | (1 << PCINT19));	// Set mask register for PD1, PD2, and PD3
+
+  DDRC &= ~(1 << PC1);     // Clear the PC1 pin
   PORTC |= (1 << PC1);    // turn On the Pull-up
-  // PC4 is now an input with pull-up enabled
-  PCICR |= (1 << PCIE1);				// Enable interrupts for Port D
-	PCMSK1 |= (1 << PCINT9);	// Set mask register for PD2
+  PCMSK1 |= (1 << PCINT9);	// Set mask register for PC1
 }
