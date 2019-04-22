@@ -45,7 +45,25 @@ char* directionTo(struct GPS* current, struct GPS* to){
     double long_dist = calcDistance_long(current, to);
     double lat_dist = calcDistance_lat(current, to);
 
-    if(to->latitude > current->latitude && long_dist < 10){
+	if(current->longitude < to->longitude){long_dist= -1*long_dist;}
+	if(current->latitude > to ->latitude){lat_dist = -1*lat_dist;}
+	
+	double d = atan2(lat_dist,long_dist) -90;
+	d = radDegrees(d);
+	while(d>=360){d=d-360;};
+	while(d<0){d=d+360;};
+	if((d>0 && d<=22) || (d>338 && d<=359)){dir="N";}
+	if(d>22 && d<=67){dir="NE";}
+	if(d>67 && d<=112){dir="E";}
+	if(d>112 && d<=157){dir="SE";}
+	if(d>157 && d<=202){dir="S";}
+	if(d>202 && d<=247){dir="SW";}
+	if(d>247 && d<=292){dir="W";}
+	if(d>292 && d<=337){dir="NW";}
+	//else{dir = "XX";}
+	
+	
+  /*  if(to->latitude > current->latitude && long_dist < 10){
         dir = "N";
     }else if(to->latitude < current->latitude && long_dist < 10){
         dir = "S";
@@ -54,7 +72,7 @@ char* directionTo(struct GPS* current, struct GPS* to){
     }else{
         dir = "E";
     }
-    // if(long_dist > 5 && lat_dist > 5){
+ */   // if(long_dist > 5 && lat_dist > 5){
     //     if(current->longitude > to->longitude && current->latitude > to->latitude){
     //       dir = "SE";
     //     }else if(current->longitude > to->longitude){
