@@ -25,8 +25,12 @@ double radDegrees(double rad);
 
 void updateNext(struct GPS* current, struct Map* map);
 double distanceNext(struct GPS* current, struct Point* pt);
+void updatePrev(struct GPS* current, struct Map* map);
+double distancePrev(struct GPS* current, struct Point* pt);
 char* directionTo(struct GPS* current, struct GPS* to);
 char* directionNext(struct GPS* current, struct Point* pt);
+char* directionPrev(struct GPS* current, struct Point* pt);
+
 
 double calcDistance(struct GPS* current, struct GPS* gps);
 

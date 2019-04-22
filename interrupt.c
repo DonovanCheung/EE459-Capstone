@@ -22,7 +22,7 @@
 #define PATHMENU 1
 #define SENDLOC 2
 #define NAVDISPLAY 3
-
+#define RETURN 4
 void serial_init();
 void button_init();
 void init_timer(unsigned short);
@@ -142,12 +142,6 @@ int main(void){
       else{
         refresh_count++;
       }
-      /*lcd_moveto(0,0);
-      lcd_stringout("NAV Display");
-      lcd_moveto(1,0);
-      lcd_stringout("Coming Soon");
-      lcd_moveto(3,0);
-      lcd_stringout("Back");*/
       if(done == false){
         struct Point* pt = map.curr;
 
@@ -178,32 +172,67 @@ int main(void){
         updateNext(&gps, &map);
         if(map.index == map.totalPoints){done = true;}
         //current point
-        lcd_moveto(2, 0);
+        // lcd_moveto(2, 0);
         //print current location
-        memset(degrees_buffer,0,degrees_buffer_size);
-        dtostrf(gps.latitudeDegrees, 6, 4, degrees_buffer);
-        lcd_stringout(degrees_buffer);
-        lcd_stringout(" ");
-        memset(degrees_buffer,0,degrees_buffer_size);
-        dtostrf(gps.longitudeDegrees, 6, 4, degrees_buffer);
-        lcd_stringout(degrees_buffer);
+        // memset(degrees_buffer,0,degrees_buffer_size);
+        // dtostrf(gps.latitudeDegrees, 6, 4, degrees_buffer);
+        // lcd_stringout(degrees_buffer);
+        // lcd_stringout(" ");
+        // memset(degrees_buffer,0,degrees_buffer_size);
+        // dtostrf(gps.longitudeDegrees, 6, 4, degrees_buffer);
+        // lcd_stringout(degrees_buffer);
 
-        //next location
-        lcd_moveto(3, 0);
-        memset(degrees_buffer,0,degrees_buffer_size);
-        dtostrf(pt->next->gps->latitudeDegrees, 6, 4, degrees_buffer);
-        lcd_stringout(degrees_buffer);
-        lcd_stringout(" ");
-        memset(degrees_buffer,0,degrees_buffer_size);
-        dtostrf(pt->next->gps->longitudeDegrees, 6, 4, degrees_buffer);
-        lcd_stringout(degrees_buffer);
+        // //next location
+        // lcd_moveto(3, 0);
+        // memset(degrees_buffer,0,degrees_buffer_size);
+        // dtostrf(pt->next->gps->latitudeDegrees, 6, 4, degrees_buffer);
+        // lcd_stringout(degrees_buffer);
+        // lcd_stringout(" ");
+        // memset(degrees_buffer,0,degrees_buffer_size);
+        // dtostrf(pt->next->gps->longitudeDegrees, 6, 4, degrees_buffer);
+        // lcd_stringout(degrees_buffer);
       }else{
+        if (refresh_count == refresh_rate){
+          lcd_clear();
+          refresh_count = 0;
+        }
+        else{
+          refresh_count++;
+        }
         lcd_moveto(1, 5);
         lcd_stringout("Congrats");
         lcd_moveto(2, 1);
         lcd_stringout("You've finished!");
       }
+    }else if(screen == RETURN){
+        if(map.index == 1){continue;}
+        struct Point* pt = map.curr;
 
+        //_delay_ms(1000);
+        parse(GGA_Buffer, &gps);
+        lcd_moveto(0,0);
+
+        //tally of check points
+        lcd_stringout("Checkpoint ");
+        memset(res, 0, 3);
+        sprintf(res, "%d", map.index);
+        lcd_stringout(res);
+        lcd_stringout(" of ");
+        memset(res, 0, 3);
+        sprintf(res, "%d", map.totalPoints);
+        lcd_stringout(res);
+
+        //Next point
+        lcd_moveto(1,0);
+        lcd_stringout("Next: ");
+        memset(degrees_buffer,0,degrees_buffer_size);
+        dist =  distancePrev(&gps, pt);
+        dtostrf(dist, 6, 2, degrees_buffer);
+        lcd_stringout(degrees_buffer);
+        direction = directionPrev(&gps, pt);
+        lcd_stringout(" ");
+        lcd_stringout(direction);
+        updatePrev(&gps, &map);
     }
 
 
@@ -267,6 +296,7 @@ ISR(PCINT2_vect){
   }
   else if ((PIND & (1<<PD3)) == 0){  // Button #3 pressed
     if (screen == MAINMENU){
+      screen = RETURN;
       //screen = SENDLOC;
     }
     else if (screen == PATHMENU){
@@ -282,6 +312,7 @@ ISR(PCINT1_vect){
   if ((PINC & (1<<PC1)) == 0){
     screen = MAINMENU;
     _delay_ms(1000);
+    sei();
 
     /*if (screen == MAINMENU){
       //screen = SENDLOC;
