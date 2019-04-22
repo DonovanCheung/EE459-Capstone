@@ -150,14 +150,6 @@ int main(void){
       lcd_stringout("Back");*/
 
       struct Point* pt = map.curr;
-      // memset(degrees_buffer,0,degrees_buffer_size);
-      // dtostrf(pt->gps->latitudeDegrees, 9, 6, degrees_buffer);
-      // lcd_stringout(degrees_buffer);
-      // memset(degrees_buffer,0,degrees_buffer_size);
-      // dtostrf(pt->gps->longitudeDegrees, 9, 6, degrees_buffer);
-      // lcd_stringout(",");
-      // lcd_stringout(degrees_buffer);
-      // if(pt->next) map.curr = pt->next;
 
       //_delay_ms(1000);
       parse(GGA_Buffer, &gps);
@@ -165,12 +157,12 @@ int main(void){
 
       //tally of check points
       lcd_stringout("Checkpoint ");
-      memset(res, 0, 5);
-      itoa(map.index, res, 3);
+      memset(res, 0, 3);
+      sprintf(res, "%d", map.index);
       lcd_stringout(res);
       lcd_stringout(" of ");
-      memset(res, 0, 5);
-      itoa(map.totalPoints, res, 3);
+      memset(res, 0, 3);
+      sprintf(res, "%d", map.totalPoints);
       lcd_stringout(res);
 
       //Next point
@@ -189,11 +181,21 @@ int main(void){
       lcd_moveto(2, 0);
       //print current location
       memset(degrees_buffer,0,degrees_buffer_size);
-      dtostrf(gps.latitude, 6, 4, degrees_buffer);
+      dtostrf(gps.latitudeDegrees, 6, 4, degrees_buffer);
       lcd_stringout(degrees_buffer);
       lcd_stringout(" ");
       memset(degrees_buffer,0,degrees_buffer_size);
-      dtostrf(gps.longitude, 6, 4, degrees_buffer);
+      dtostrf(gps.longitudeDegrees, 6, 4, degrees_buffer);
+      lcd_stringout(degrees_buffer);
+
+      //next location
+      lcd_moveto(3, 0);
+      memset(degrees_buffer,0,degrees_buffer_size);
+      dtostrf(pt->next->gps->latitudeDegrees, 6, 4, degrees_buffer);
+      lcd_stringout(degrees_buffer);
+      lcd_stringout(" ");
+      memset(degrees_buffer,0,degrees_buffer_size);
+      dtostrf(pt->next->gps->longitudeDegrees, 6, 4, degrees_buffer);
       lcd_stringout(degrees_buffer);
     }
 
