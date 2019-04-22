@@ -142,7 +142,7 @@ void updateNext(struct GPS* current, struct Map* map){
       return;
     }
     double dist = calcDistance(current,map->curr->next->gps);
-    if(dist < 15){
+    if(dist < 10){
         map->index = map->index + 1;
         map->curr = map->curr->next;
         lcd_yellowon();

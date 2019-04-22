@@ -205,7 +205,20 @@ int main(void){
         lcd_stringout("You've finished!");
       }
     }else if(screen == RETURN){
-        if(map.index == 1){continue;}
+        if(map.index == 1){
+          if (refresh_count == refresh_rate){
+            lcd_clear();
+            refresh_count = 0;
+          }
+          else{
+              refresh_count++;
+          }
+          lcd_moveto(1, 0);
+          lcd_stringout("Arrived at start");
+          // lcd_moveto(2, 1);
+          // lcd_stringout("You've finished!");
+          continue;
+        }
         struct Point* pt = map.curr;
 
         //_delay_ms(1000);
