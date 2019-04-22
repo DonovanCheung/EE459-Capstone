@@ -57,6 +57,10 @@ void lcd_writenibble(unsigned char);
 void lcd_wait(void);
 void lcd_stringout_P(char *);
 void lcd_clear(void);
+void lcd_redon(void);
+void lcd_redoff(void);
+void lcd_yellowon(void);
+void lcd_yellowoff(void);
 
 /*
   Use the "PROGMEM" attribute to store the strings in the ROM

@@ -22,6 +22,8 @@ void lcd_stringout_P(char *s)
 */
 void lcd_init(void)
 {
+	 DDRC |= (1 << PC2);				 // For lcd_redon
+
 	 DDRD |= LCD_Data_D;         // Set PORTD bits 4-7 for output
 	 DDRB |= LCD_Bits;           // Set PORTB bits 0, 1 and 2 for output
 
@@ -69,7 +71,7 @@ void lcd_moveto(unsigned char row, unsigned char col)
 	if ( row > 4 ) {
 	  row = 3;    // we count rows starting w/0
 	}
-  
+
   lcd_writecommand(0x80 | (col + row_offsets[row]));
 }
 
@@ -160,4 +162,20 @@ void lcd_wait()
 
 void lcd_clear(){
 		lcd_writecommand(1);
+}
+
+void lcd_redon(){
+	PORTC &= ~(1 << PC2);
+}
+
+void lcd_redoff(){
+PORTC |= (1 << PC2);
+}
+
+void lcd_yellowon(){
+PORTC &= ~(1 << PC3);
+}
+
+void lcd_yellowoff(){
+	PORTC |= (1 << PC3);
 }

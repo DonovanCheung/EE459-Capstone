@@ -9,16 +9,16 @@
 				PB6							|   oscillator (pin3)
 				PB7							|
 				PC0							|		resistor - LED (red)
-				PC1							|		Button #1 (black)
-				PC2							|
-				PC3							|
+				PC1							|		Button #4 (white)
+				PC2							|		Red Backlight (LCD)
+				PC3							|		Yellow Backlight (LCD)
 				PC4							|
 				PC5							|
 				PC6							|		Flash pin
 				PD0 (RXD)				|   MAX232 (pin12)
-				PD1	(TXD)				|
-				PD2							|		Button #1 (black) [Gonna change to C1]
-				PD3							|
+				PD1	(TXD)				|		Button #1 (black)
+				PD2							|		Button #2 (blue)
+				PD3							|		Button #3 (red)
 				PD4							|		DB4 (LCD)
 				PD5							|		DB5 (LCD)
 				PD6							|		DB6 (LCD)
