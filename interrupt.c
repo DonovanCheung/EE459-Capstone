@@ -85,7 +85,7 @@ int main(void){
   lcd_stringout("Jurassic Park");
   _delay_ms(3000);
   lcd_clear();
-  bool done = false;
+
   while(1){
     if (screen == MAINMENU){
       if (refresh_count == refresh_rate){
@@ -142,6 +142,7 @@ int main(void){
       else{
         refresh_count++;
       }
+<<<<<<< HEAD
       if(done == false){
         struct Point* pt = map.curr;
 
@@ -271,6 +272,63 @@ int main(void){
           lcd_moveto(3, 2);
           lcd_stringout("Return to trail");
         }
+=======
+      /*lcd_moveto(0,0);
+      lcd_stringout("NAV Display");
+      lcd_moveto(1,0);
+      lcd_stringout("Coming Soon");
+      lcd_moveto(3,0);
+      lcd_stringout("Back");*/
+
+      struct Point* pt = map.curr;
+
+      //_delay_ms(1000);
+      parse(GGA_Buffer, &gps);
+      lcd_moveto(0,0);
+
+      //tally of check points
+      lcd_stringout("Checkpoint ");
+      memset(res, 0, 3);
+      sprintf(res, "%d", map.index);
+      lcd_stringout(res);
+      lcd_stringout(" of ");
+      memset(res, 0, 3);
+      sprintf(res, "%d", map.totalPoints);
+      lcd_stringout(res);
+
+      //Next point
+      lcd_moveto(1,0);
+      lcd_stringout("Next: ");
+      memset(degrees_buffer,0,degrees_buffer_size);
+      dist =  distanceNext(&gps, pt);
+      dtostrf(dist, 6, 2, degrees_buffer);
+      lcd_stringout(degrees_buffer);
+      direction = directionNext(&gps, pt);
+      lcd_stringout(" ");
+      lcd_stringout(direction);
+      updateNext(&gps, &map);
+
+      //current point
+      lcd_moveto(2, 0);
+      //print current location
+      memset(degrees_buffer,0,degrees_buffer_size);
+      dtostrf(gps.latitudeDegrees, 6, 4, degrees_buffer);
+      lcd_stringout(degrees_buffer);
+      lcd_stringout(" ");
+      memset(degrees_buffer,0,degrees_buffer_size);
+      dtostrf(gps.longitudeDegrees, 6, 4, degrees_buffer);
+      lcd_stringout(degrees_buffer);
+
+      //next location
+      lcd_moveto(3, 0);
+      memset(degrees_buffer,0,degrees_buffer_size);
+      dtostrf(pt->next->gps->latitudeDegrees, 6, 4, degrees_buffer);
+      lcd_stringout(degrees_buffer);
+      lcd_stringout(" ");
+      memset(degrees_buffer,0,degrees_buffer_size);
+      dtostrf(pt->next->gps->longitudeDegrees, 6, 4, degrees_buffer);
+      lcd_stringout(degrees_buffer);
+>>>>>>> parent of 8d125c9... Added light-up notifications
     }
 
 

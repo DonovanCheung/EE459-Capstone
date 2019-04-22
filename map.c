@@ -3,8 +3,12 @@
 #include <string.h>
 #include <math.h>
 #include "map.h"
+<<<<<<< HEAD
 #include "lcd.h"
 #define PI 3.141592654
+=======
+
+>>>>>>> parent of 8d125c9... Added light-up notifications
 #define EXIT_FAILURE 1
 #define KM_TO_FEET 3280.84
 
@@ -44,6 +48,7 @@ char* directionTo(struct GPS* current, struct GPS* to){
     char* dir = "";
     double long_dist = calcDistance_long(current, to);
     double lat_dist = calcDistance_lat(current, to);
+<<<<<<< HEAD
 
     if(long_dist > lat_dist){
         if(to->longitude > current->longitude){
@@ -123,6 +128,42 @@ char* directionTo(struct GPS* current, struct GPS* to){
     //         // dir += "W";
     //         strcat(dir, "W");
     //     }
+=======
+    if(long_dist > 5){
+        if(current->longitude > to->longitude){
+            strcpy(dir, "S");
+            // dir = "S";
+        }else{
+            // dir = "N";
+            strcpy(dir, "N");
+        }
+    }
+    if(lat_dist > 5){
+        if(current->latitude > to->latitude){
+            // dir += "E";
+            strcat(dir, "E");
+        }else{
+            // dir += "W";
+            strcat(dir, "W");
+        }
+    }
+    // if((current->longitude - to->longitude) > 0 && (current->latitude - to->latitude) > 0){
+    //     dir = "NE";
+    // }else if((current->longitude - to->longitude) > 0 && (current->latitude - to->latitude) < 0){
+    //     dir = "NW";
+    // }else if((current->longitude - to->longitude) < 0 && (current->latitude - to->latitude) > 0){
+    //     dir = "SE";
+    // }else if((current->longitude - to->longitude) < 0 && (current->latitude - to->latitude) < 0){
+    //     dir = "SW";
+    // }else if((current->longitude - to->longitude) > 0){
+    //     dir = "N";
+    // }else if((current->longitude - to->longitude) < 0){
+    //     dir = "S";
+    // }else if((current->latitude - to->latitude) > 0){
+    //     dir = "E";
+    // }else{
+    //     dir = "W";
+>>>>>>> parent of 8d125c9... Added light-up notifications
     // }
 
     return dir;
@@ -146,6 +187,7 @@ double calcDistance(struct GPS* current, struct GPS* gps){
   double d = R * c * 1000; //distance in miles
   return d;
 }
+<<<<<<< HEAD
 void updatePrev(struct GPS* current, struct Map* map){
     if(!(map->curr->prev)){
       lcd_yellowon();
@@ -194,6 +236,19 @@ void updateNext(struct GPS* current, struct Map* map){
       return;
     }
 
+=======
+
+void updateNext(struct GPS* current, struct Map* map){
+    if(!(map->curr->next)) return; 
+    double dist = calcDistance(current,map->curr->next->gps);
+    if(dist < 15){
+        map->index = map->index + 1;
+        map->curr = map->curr->next;
+        return;
+    }
+    else return;
+    
+>>>>>>> parent of 8d125c9... Added light-up notifications
 }
 
 void init_map(struct Map* map_ptr, float points[][2], int numPoints){
@@ -202,11 +257,11 @@ void init_map(struct Map* map_ptr, float points[][2], int numPoints){
     map_ptr->head = NULL;
     map_ptr->curr = NULL;
 
-    struct Point* head = (struct Point*)malloc(sizeof(struct Point));
+    struct Point* head = (struct Point*)malloc(sizeof(struct Point)); 
     struct GPS * head_gps = (struct GPS*)malloc(sizeof(struct GPS));
 
     head_gps->latitudeDegrees  = points[0][0];
-    head_gps->longitudeDegrees = points[0][1];
+    head_gps->longitudeDegrees = points[0][1]; 
     head->gps = head_gps;
     head->prev = NULL;
     head->next = NULL;
@@ -217,7 +272,7 @@ void init_map(struct Map* map_ptr, float points[][2], int numPoints){
     int j;
     double totalDist = 0;
     for(j = 1; j < numPoints; j++){
-        struct Point* new_point = (struct Point*)malloc(sizeof(struct Point));
+        struct Point* new_point = (struct Point*)malloc(sizeof(struct Point)); 
         struct GPS * new_gps = (struct GPS*)malloc(sizeof(struct GPS));
         new_gps->latitudeDegrees = points[j][0];
         new_gps->longitudeDegrees = points[j][1];
@@ -228,6 +283,10 @@ void init_map(struct Map* map_ptr, float points[][2], int numPoints){
         prev->next = new_point;
         prev = new_point;
     }
+<<<<<<< HEAD
     map_ptr->totalDist = totalDist;
     map_ptr->distRemaining = totalDist;
 }
+=======
+}
+>>>>>>> parent of 8d125c9... Added light-up notifications
