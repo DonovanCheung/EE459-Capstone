@@ -18,6 +18,8 @@ struct Map{
 	struct Point* head;
 	struct Point* curr;
 	int index;
+	double totalDist;
+	double distRemaining;
 };
 
 void init_map(struct Map* map_ptr, float points[][2], int numPoints);

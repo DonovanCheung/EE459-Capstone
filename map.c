@@ -45,21 +45,34 @@ char* directionTo(struct GPS* current, struct GPS* to){
     double long_dist = calcDistance_long(current, to);
     double lat_dist = calcDistance_lat(current, to);
 
-	if(current->longitude < to->longitude){long_dist= -1*long_dist;}
-	if(current->latitude > to ->latitude){lat_dist = -1*lat_dist;}
+    if(long_dist > lat_dist){
+        if(to->longitude > current->longitude){
+            dir = "W";
+        }else{
+            dir = "E";
+        }
+    }else{
+        if(to->latitude > current->latitude){
+            dir = "N";
+        }else{
+            dir = "S";
+        }
+    }
+	// if(current->longitude < to->longitude){long_dist= -1*long_dist;}
+	// if(current->latitude > to ->latitude){lat_dist = -1*lat_dist;}
 	
-	double d = atan2(lat_dist,long_dist) -90;
-	d = radDegrees(d);
-	while(d>=360){d=d-360;};
-	while(d<0){d=d+360;};
-	if((d>0 && d<=22) || (d>338 && d<=359)){dir="N";}
-	if(d>22 && d<=67){dir="NE";}
-	if(d>67 && d<=112){dir="E";}
-	if(d>112 && d<=157){dir="SE";}
-	if(d>157 && d<=202){dir="S";}
-	if(d>202 && d<=247){dir="SW";}
-	if(d>247 && d<=292){dir="W";}
-	if(d>292 && d<=337){dir="NW";}
+	// double d = atan2(lat_dist,long_dist) -90;
+	// d = radDegrees(d);
+	// while(d>=360){d=d-360;};
+	// while(d<0){d=d+360;};
+	// if((d>0 && d<=22) || (d>338 && d<=359)){dir="N";}
+	// if(d>22 && d<=67){dir="NE";}
+	// if(d>67 && d<=112){dir="E";}
+	// if(d>112 && d<=157){dir="SE";}
+	// if(d>157 && d<=202){dir="S";}
+	// if(d>202 && d<=247){dir="SW";}
+	// if(d>247 && d<=292){dir="W";}
+	// if(d>292 && d<=337){dir="NW";}
 	//else{dir = "XX";}
 	
 	
@@ -160,19 +173,21 @@ void updateNext(struct GPS* current, struct Map* map){
       return;
     }
     double dist = calcDistance(current,map->curr->next->gps);
-    if(dist < 10){
+    if(dist < 15){
+        map->distRemaining = map->distRemaining - calcDistance(map->curr->gps, map->curr->prev->gps);
         map->index = map->index + 1;
         map->curr = map->curr->next;
         lcd_yellowon();
+        lcd_redon();
         return;
     }
-    else if (!(/*calcDistance(current, map->curr->gps) < 50 || */dist < 50)){
-        lcd_redon();
-        lcd_moveto(2, 5);
-        lcd_stringout("CAUTION");
-        lcd_moveto(3, 2);
-        lcd_stringout("Return to trail");
-    }
+    // else if (!(/*calcDistance(current, map->curr->gps) < 50 || */dist < 50)){
+    //     lcd_redon();
+    //     lcd_moveto(2, 5);
+    //     lcd_stringout("CAUTION");
+    //     lcd_moveto(3, 2);
+    //     lcd_stringout("Return to trail");
+    // }
     else{
       lcd_redoff();
       lcd_yellowoff();
@@ -200,6 +215,7 @@ void init_map(struct Map* map_ptr, float points[][2], int numPoints){
     map_ptr->curr = head;
     struct Point* prev = head;
     int j;
+    double totalDist = 0;
     for(j = 1; j < numPoints; j++){
         struct Point* new_point = (struct Point*)malloc(sizeof(struct Point));
         struct GPS * new_gps = (struct GPS*)malloc(sizeof(struct GPS));
@@ -208,7 +224,10 @@ void init_map(struct Map* map_ptr, float points[][2], int numPoints){
         new_point->gps = new_gps;
         new_point->prev = prev;
         new_point->next = NULL;
+        totalDist += calcDistance(prev->gps, new_gps);
         prev->next = new_point;
         prev = new_point;
     }
+    map_ptr->totalDist = totalDist;
+    map_ptr->distRemaining = totalDist;
 }

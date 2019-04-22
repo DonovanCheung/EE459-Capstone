@@ -75,7 +75,7 @@ int main(void){
   double dist; //distance to next location
   char* direction; //direction to next location
   char res[5]; //hold test values to print out
-
+  char distDisplay[10];
   // Splash Screen
   lcd_moveto(0,7);
   lcd_stringout("Welcome");
@@ -171,6 +171,23 @@ int main(void){
         lcd_stringout(direction);
         updateNext(&gps, &map);
         if(map.index == map.totalPoints){done = true;}
+
+        if(!(calcDistance(&gps, pt->next->gps) < 50)){
+          lcd_redon();
+          lcd_moveto(2, 5);
+          lcd_stringout("CAUTION");
+          lcd_moveto(3, 2);
+          lcd_stringout("Return to trail");
+        }else{
+          lcd_moveto(2,0);
+          lcd_stringout("Remaining: ");
+          memset(distDisplay, 0, 10);
+          sprintf(distDisplay, "%f", map.distRemaining);
+          lcd_moveto(3,0);
+          lcd_stringout("Total Dist: ");
+          memset(distDisplay, 0, 10);
+          sprintf(distDisplay, "%f", map.totalDist);
+        }
         //current point
         // lcd_moveto(2, 0);
         //print current location
@@ -246,6 +263,14 @@ int main(void){
         lcd_stringout(" ");
         lcd_stringout(direction);
         updatePrev(&gps, &map);
+
+        if(!(calcDistance(&gps, pt->next->gps) < 50)){
+          lcd_redon();
+          lcd_moveto(2, 5);
+          lcd_stringout("CAUTION");
+          lcd_moveto(3, 2);
+          lcd_stringout("Return to trail");
+        }
     }
 
 
